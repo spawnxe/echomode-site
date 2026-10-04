@@ -53,10 +53,9 @@ jobs:
             test-results
           retention-days: 7
 
+      # Requires Pages to be enabled once: Settings → Pages → Build and deployment → Source: GitHub Actions
       - name: Configure Pages
         uses: actions/configure-pages@v5
-        with:
-          enablement: true # creates the Pages site on first run if the token is allowed to; otherwise enable once in Settings → Pages → Source: GitHub Actions
 
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
