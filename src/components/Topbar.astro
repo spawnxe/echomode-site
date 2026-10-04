@@ -1,0 +1,23 @@
+---
+import { compositions, site } from '../data/compositions';
+---
+
+<header class="topbar">
+  <div style="white-space:nowrap">
+    <span class="tail">Echo<span class="dim">mode</span></span><span>Design systems</span>
+  </div>
+  <div class="title" aria-hidden="true">{site.tagline}</div>
+  <div class="nums">
+    <span class="dim">©—</span>{site.year}<br />
+    <span class="nav" role="group" aria-label="Compositions">
+      {compositions.map((c, i) => (
+        <>
+          {i > 0 && <span class="gap"></span>}
+          <button type="button" class="nw" aria-label={`Composition ${c.id}`} data-go={c.id}>
+            <span class="o">0{c.id}</span><span class="d">0{c.id}</span>
+          </button>
+        </>
+      ))}
+    </span>
+  </div>
+</header>

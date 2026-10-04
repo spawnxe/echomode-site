@@ -1,0 +1,28 @@
+---
+import type { Item } from '../data/items';
+import mark from '../data/mark.json';
+
+interface Props {
+  item: Item;
+}
+const { item } = Astro.props;
+const fieldStyle = `--pos:${item.pos ?? '50% 50%'};background-image:url(${item.field.src})`;
+const coverStyle = item.cover ? `--pos:50% 50%;background-image:url(${item.cover.src})` : null;
+---
+
+<a class="item" href={item.href} data-id={item.id} data-mark={item.mark}>
+  <svg class="top-svg" viewBox={`0 0 ${mark.width} ${mark.height}`} aria-hidden="true"><use href="#em-mark"></use></svg>
+  <div class="img">
+    <div class="inner" style={fieldStyle}></div>
+    {coverStyle && <div class="inner cover" style={coverStyle}></div>}
+  </div>
+  <div class="cap">
+    <div class="tcol">
+      <span class="tm"><span class="tt">{item.title}</span></span>
+      <span class="tm"><span class="tt dim">{item.sub}</span></span>
+    </div>
+    <div class="tcol r">
+      <span class="tm"><span class="tt">{item.meta}</span></span>
+    </div>
+  </div>
+</a>

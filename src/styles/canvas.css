@@ -1,0 +1,211 @@
+/* ============================================================
+   Echomode — the WIDE system, applied.
+   One typeface, one size (0.9vw), uppercase 600, −0.02em.
+   One cream, black ink, artefact colour. No accent.
+   --dur 1.5s · --ease cubic-bezier(.75,0,0,1) · masks, never fades.
+   Geometry lives in vw/vh; the controller only writes --l/--w/--t/--h.
+   ============================================================ */
+
+html, body { margin: 0; background: #FFFDF3; height: 100%; }
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow: clip; /* a canvas, not a page: wheel/swipe step the compositions */
+}
+a { color: inherit; text-decoration: none; }
+
+.em {
+  --bg: #FFFDF3;
+  --ink: #0D0D0D;
+  --dur: 1.5s;
+  --ease: cubic-bezier(.75, 0, 0, 1);
+  --pscale: 1.1;
+  --hover: .3s;
+  --g: 1.3vw;
+  --pad-x: 1.35vw;
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  height: 100svh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Archivo Variable", "Archivo", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: .9vw;
+  line-height: 100%;
+  letter-spacing: -.02em;
+  text-transform: uppercase;
+  font-weight: 600;
+  font-variation-settings: "wdth" 100, "wght" 600;
+  overflow: clip;
+}
+.em *, .em *::before, .em *::after { box-sizing: border-box; }
+.em p, .em h1, .em h2, .em ul { margin: 0; }
+.em ul { padding: 0; list-style: none; }
+.em button {
+  appearance: none; background: none; border: 0; padding: 0; margin: 0;
+  font: inherit; color: inherit; letter-spacing: inherit; text-transform: inherit; line-height: inherit; cursor: pointer;
+}
+.em :focus-visible { outline: 1px solid currentColor; outline-offset: 2px; }
+.em ::selection { background: var(--ink); color: var(--bg); }
+.dim { opacity: .45; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---- page ---- */
+.page { position: relative; height: 100%; padding: 2.4vw var(--pad-x) 5.4vw; display: flex; flex-direction: column; }
+
+/* ---- topbar / footer: pinned, exclusion over imagery ---- */
+.topbar {
+  position: absolute; inset: 5px 6px auto 6px; z-index: 60;
+  display: flex; justify-content: space-between; align-items: flex-start;
+  color: var(--bg); mix-blend-mode: exclusion; pointer-events: none;
+}
+.topbar > * { pointer-events: auto; }
+.topbar .title { position: absolute; top: 1px; left: var(--title-x, 38vw); }
+.topbar .nums { text-align: end; white-space: nowrap; }
+.gap { margin-right: 1.23vw; }
+.tail { display: inline-block; margin-right: 2.3vw; }
+.footer {
+  position: absolute; inset: auto 6px 6px auto; z-index: 60; line-height: 100%;
+  color: var(--bg); mix-blend-mode: exclusion; text-align: right;
+}
+
+/* nav number micro-interaction (duplicate slide) */
+.nw { position: relative; display: inline-block; overflow: hidden; cursor: pointer; margin-top: -.23vw; vertical-align: top; }
+.nw .o, .nw .d { display: inline-block; }
+.nw .d { position: absolute; top: 0; left: 0; transform: translateX(105%); }
+@keyframes outLeft { from { transform: translateX(0); } to { transform: translateX(-105%); } }
+@keyframes inRight { from { transform: translateX(105%); } to { transform: translateX(0); } }
+.nw:hover .o, .nw:not(:hover) .d { animation: outLeft var(--hover) forwards ease-in-out; }
+.nw:hover .d, .nw:not(:hover) .o { animation: inRight var(--hover) forwards ease-in-out; }
+.nw.on { text-decoration: underline; text-underline-offset: .2em; }
+
+/* ---- canvas ---- */
+.canvas { position: relative; width: 100%; height: 82vh; margin-top: auto; }
+.canvas.no-anim .item, .canvas.no-anim .img, .canvas.no-anim .inner { transition: none !important; }
+
+/* ---- items: absolutely placed, geometry transitions ---- */
+.item {
+  position: absolute; display: none; flex-direction: column; justify-content: flex-start; overflow: visible;
+  top: var(--t); left: var(--l); width: var(--w); height: var(--h);
+  transition: top var(--dur) var(--ease), left var(--dur) var(--ease), width var(--dur) var(--ease), height var(--dur) var(--ease);
+  will-change: top, left, width, height;
+}
+.item.on { display: flex; }
+.img {
+  position: relative; overflow: hidden; width: 100%; flex: 1; min-height: 0; contain: paint;
+  clip-path: inset(0 0 0 0); backface-visibility: hidden; transform: translateZ(0);
+  transition: clip-path var(--dur) var(--ease), height var(--dur) var(--ease), flex-basis var(--dur) var(--ease);
+}
+.item.hidden .img { clip-path: inset(0 0 100% 0); }
+.item.from-top .img { clip-path: inset(99.9% 0 0 0); }
+.inner {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: var(--pos, 50% 50%); background-repeat: no-repeat;
+  transform: scale(var(--pscale)); transform-origin: center; backface-visibility: hidden; will-change: transform;
+  transition: transform var(--dur) var(--ease), background-position var(--dur) var(--ease);
+}
+.item.large .inner { --pscale: 1.1; }
+.inner.cover { opacity: 0; transform: scale(1); transition: opacity var(--dur) var(--ease); }
+.item.large .inner.cover { opacity: 1; }
+.item.large .inner:not(.cover) { --pscale: 1.06; }
+
+/* captions: text in masks, slide 120% */
+.cap {
+  position: absolute; left: 0; right: 0; top: 100%;
+  display: flex; justify-content: space-between; align-items: flex-start; padding-top: 1.2vw; gap: 1vw;
+}
+.tcol { display: flex; flex-direction: column; align-items: flex-start; }
+.tcol.r { align-items: flex-end; text-align: right; }
+.tm { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .12em; margin-bottom: -.12em; }
+.tt { display: inline-block; transform: translateY(120%); will-change: transform; --dir: 1; }
+@keyframes textEnter { from { transform: translateY(calc(-120% * var(--dir))); } to { transform: translateY(0); } }
+@keyframes textExit { from { transform: translateY(0); } to { transform: translateY(calc(120% * var(--dir))); } }
+.cap.show .tt { animation: textEnter var(--dur) var(--ease) both; }
+.cap.hide .tt { animation: textExit var(--dur) var(--ease) both; }
+.item.caps-off .cap { display: none; }
+
+/* ---- logotype: SVG inside the card (WIDE .top-svg), one <symbol>, reused ---- */
+.top-svg {
+  position: absolute; z-index: 5; left: -0.5px; top: -0.5px;
+  width: calc(100% + 3px); min-width: calc(100% + 3px); height: auto; display: block; pointer-events: none;
+  fill: var(--bg);
+  clip-path: inset(0 0 99.9% 0);
+  transition: clip-path var(--dur) var(--ease), top var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+.item.large[data-mark="1"] .top-svg { clip-path: inset(0 0 0 0); }
+.item.large.hidden .top-svg, .item.large.from-top .top-svg { clip-path: inset(0 0 99.9% 0); }
+.item.large .top-svg { top: 7.5%; }
+
+/* ---- text layer: statement + copy share one cell; one block visible per composition ---- */
+.text {
+  position: absolute; z-index: 40; top: 0; height: 100%; width: calc(100% - 41.3vw);
+  display: flex; flex-direction: column; pointer-events: none;
+  transition: top var(--dur) var(--ease); text-transform: none; letter-spacing: -.02em;
+}
+.text.main { left: 41.3vw; width: 20vw; }
+.canvas[data-l="1"] .text.main { left: 42.4vw; width: 55vw; }
+.canvas[data-l="1"] .text.main .trow.top { position: absolute; top: 33vh; right: 0; width: auto; }
+.canvas[data-l="1"] .text.main .trow.bot { margin-top: 0; margin-bottom: 34vh; }
+.canvas[data-l="1"] .text.main .trow.mid { margin-top: 34vh; }
+.canvas[data-l="2"] .text.main { width: 23.3vw; }
+.canvas[data-l="3"] .text.main, .canvas[data-l="5"] .text.main { left: auto; right: 0; width: 22vw; }
+.canvas[data-l="4"] .text.main { left: auto; right: 0; width: 22vw; justify-content: flex-end; }
+.canvas[data-l="4"] .text.main .trow.top { display: none; }
+.canvas[data-l="4"] .text.main .trow.mid { margin-top: 0; margin-bottom: 1.2vw; }
+.canvas[data-l="4"] .text.main .trow.bot { margin-top: 0; }
+.canvas[data-mirror="1"][data-l="3"] .text.main,
+.canvas[data-mirror="1"][data-l="4"] .text.main,
+.canvas[data-mirror="1"][data-l="5"] .text.main { right: auto; left: 0; }
+.canvas[data-mirror="1"] .text.main { left: 0; right: 41.3vw; }
+.trow { display: grid; grid-template-areas: "stack"; width: 100%; }
+.trow.mid { margin-top: 32vh; position: relative; }
+.trow.bot { margin-top: auto; }
+.vis { grid-area: stack; display: block; pointer-events: none; visibility: hidden; }
+.vis.on { visibility: visible; }
+.vis a, .vis button { pointer-events: auto; }
+.vis.row { display: flex; justify-content: space-between; }
+.state {
+  font-weight: 600; font-variation-settings: "wdth" 100, "wght" 600;
+  font-size: 1.45vw; line-height: 1.1; letter-spacing: -.025em; text-wrap: balance; max-width: 24ch; text-align: left;
+}
+.body { font-size: .9vw; line-height: 1.3; letter-spacing: -.01em; text-transform: uppercase; max-width: 30ch; }
+.lbl { text-transform: uppercase; }
+.arrows { width: 3vw; display: flex; justify-content: space-between; pointer-events: auto; }
+.arrows button { width: .9vw; height: .9vw; display: grid; place-items: center; }
+.arrows svg { width: 100%; height: 100%; display: block; }
+
+/* ---- reduced motion: cut to the chase ---- */
+@media (prefers-reduced-motion: reduce) {
+  .em { --dur: .01s; --hover: .01s; }
+}
+
+/* ---- mobile: the structure folds to two columns; frame stays pinned; the page scrolls ---- */
+@media (max-width: 860px) {
+  body { overflow: auto; }
+  .em { font-size: 11px; height: auto; min-height: 100vh; letter-spacing: 0; }
+  .page { padding: 14vw 4vw 16vw; height: auto; display: block; }
+  .topbar { inset: 10px 12px auto 12px; }
+  .topbar .title { display: none; }
+  .topbar .nums { white-space: nowrap; }
+  .footer { inset: auto 12px 10px auto; }
+  .canvas { height: auto; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 4vw 3vw; margin-top: 0; }
+  .canvas .item { position: relative; top: auto; left: auto; display: flex !important; width: auto !important; min-width: 0; height: auto !important; aspect-ratio: 2.35 / 3; transition: none; }
+  .canvas .item.caps-off .cap { display: flex; } /* no compositions on mobile, so every card keeps its caption */
+  .canvas .item.large { grid-column: 1 / -1; aspect-ratio: 4 / 5; }
+  .canvas .item.hidden .img, .canvas .item.from-top .img { clip-path: none; }
+  .canvas .item .img { flex: 1 1 auto; height: 100%; }
+  .cap { position: static; padding-top: 2vw; padding-bottom: 1vw; }
+  .top-svg { top: 7% !important; }
+  .canvas .item.large .top-svg { clip-path: none !important; }
+  .trow.top .vis[data-for="1"] { display: none !important; }
+  .text { position: static !important; width: auto !important; height: auto !important; grid-column: 1 / -1; margin: 6vw 0 2vw; order: -1; left: auto !important; right: auto !important; }
+  .trow.top { position: static !important; }
+  .trow.mid { margin-top: 3vw !important; }
+  .trow.bot { margin: 4vw 0 0 !important; }
+  .vis { visibility: visible !important; }
+  .vis[data-for]:not([data-for="1"]) { display: none !important; }
+  .state { font-size: 6.2vw; max-width: none; }
+  .body { font-size: 3.4vw; max-width: none; }
+  .arrows { display: none; }
+}

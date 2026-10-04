@@ -1,0 +1,33 @@
+---
+import { compositions } from '../data/compositions';
+---
+
+<div class="text main">
+  <div class="trow top">
+    {compositions.map((c) => (
+      <div class:list={['vis', { row: c.id === '1' }]} data-for={c.id}>
+        <span class="lbl dim">{c.label}</span>
+        {c.id === '1' && (
+          <div class="arrows">
+            <button type="button" aria-label="Previous composition" data-step="-1">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 8H2M6 3.5 1.5 8 6 12.5"></path></svg>
+            </button>
+            <button type="button" aria-label="Next composition" data-step="1">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h12M10 3.5 14.5 8 10 12.5"></path></svg>
+            </button>
+          </div>
+        )}
+      </div>
+    ))}
+  </div>
+  <div class="trow mid">
+    {compositions.map((c) => (
+      <div class="vis" data-for={c.id}><p class="state">{c.statement}</p></div>
+    ))}
+  </div>
+  <div class="trow bot">
+    {compositions.map((c) => (
+      <div class="vis" data-for={c.id}><p class="body" set:html={c.body}></p></div>
+    ))}
+  </div>
+</div>

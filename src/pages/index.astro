@@ -1,0 +1,34 @@
+---
+import Base from '../layouts/Base.astro';
+import Mark from '../components/Mark.astro';
+import Topbar from '../components/Topbar.astro';
+import Item from '../components/Item.astro';
+import TextLayer from '../components/TextLayer.astro';
+import { items } from '../data/items';
+import { compositions, site } from '../data/compositions';
+---
+
+<Base>
+  <Mark />
+  <div class="em" id="em">
+    <div class="page">
+      <Topbar />
+
+      <div class="canvas no-anim" data-mirror="0" data-l="1">
+        <h1 class="sr">{site.title}</h1>
+        {items.map((item) => <Item item={item} />)}
+        <TextLayer />
+      </div>
+
+      <div class="footer">
+        <span class="dim">Scroll</span> <span id="em-idx">01</span><span class="dim">/0{compositions.length} &nbsp;·&nbsp; Lab</span> Vol.01
+      </div>
+    </div>
+  </div>
+</Base>
+
+<script>
+  import { EchomodeCanvas } from '../scripts/canvas';
+  const root = document.getElementById('em');
+  if (root) new EchomodeCanvas(root);
+</script>

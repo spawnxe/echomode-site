@@ -1,0 +1,14 @@
+---
+/**
+ * The logotype as a single <symbol>, defined once and referenced by every card's .top-svg.
+ * Path data lives in src/data/mark.json so the licensed ink-trap logotype can replace it
+ * without touching markup.
+ */
+import mark from '../data/mark.json';
+---
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="em-mark" viewBox={mark.viewBox}>
+    <path d={mark.d}></path>
+  </symbol>
+</svg>
